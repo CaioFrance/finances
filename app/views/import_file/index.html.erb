@@ -1,0 +1,12 @@
+<h1>Insira arquivo CSV</h1>
+
+<% flash.each do |name, msg| %>
+  <%= content_tag :div, msg, class: name %>
+<% end %>
+
+<%= form_tag({action: :import}, multipart: true) do %>
+  <%= file_field_tag :csv, accept: 'text/csv', class: 'form-control'  %>
+  <em>Selecione o arquivo para realizar o upload</em>
+  <br>
+  <%= submit_tag 'Importar', class: 'btn btn-primary mt-2' %>
+<% end %>

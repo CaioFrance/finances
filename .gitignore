@@ -39,4 +39,4 @@
 
 /node_modules
 yarn-error.log
-public/uploads/tmp
+public/uploads/transactions/tmp
