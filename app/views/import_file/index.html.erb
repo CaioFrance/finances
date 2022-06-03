@@ -1,12 +1,39 @@
-<h1>Insira arquivo CSV</h1>
+<h1 class="text-center">IMPORTAR TRANSAÇÕES</h1>
 
 <% flash.each do |name, msg| %>
   <%= content_tag :div, msg, class: name %>
 <% end %>
 
 <%= form_tag({action: :import}, multipart: true) do %>
-  <%= file_field_tag :csv, accept: 'text/csv', class: 'form-control'  %>
+  <div class="input-group">
+    <%= file_field_tag :csv, accept: 'text/csv', class: 'form-control', 
+          'aria-describedby': 'submitCSV', 'aria-label': 'upload' %>
+    <%= button_tag 'Importar', class: 'btn btn-primary', id: 'submitCSV' %>
+  </div>
   <em>Selecione o arquivo para realizar o upload</em>
-  <br>
-  <%= submit_tag 'Importar', class: 'btn btn-primary mt-2' %>
 <% end %>
+
+<hr class="mt-4">
+
+<h2 class="text-center mt-3">IMPORTAÇÕES REALIZADAS</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">DATA TRANSAÇÕES</th>
+      <th scope="col">DATA IMPORTAÇÃO</th>
+    </tr>
+  </thead>
+  <tbody class="table-group-divider">
+    <% @log_transactions.each do |log| %>
+      <tr>
+        <th>
+          <%= log.transaction_date.strftime("%d/%m/%Y") %>
+        </th>
+        <td scope="row">
+          <%= log.import_date.strftime("%d/%m/%Y - %H:%M:%S") %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

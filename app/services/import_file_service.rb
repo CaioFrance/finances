@@ -1,12 +1,17 @@
 require 'csv'
 
 require_relative '../models/transaction'
+require_relative '../models/log_transaction'
 
 class ImportFileService
 
   attr_reader :status_file
 
   @@FILE_INVALID = "Arquivo inválido".freeze
+
+  def get_log_transactions
+    log_transactions = LogTransaction.all
+  end
 
   def save_file(file)
     csv = CSV.read(file)
@@ -29,10 +34,14 @@ class ImportFileService
 
   def transaction_handle(transactions)
     data = []
-    date_current = transactions[0][7]
-    if is_valid_transaction?(date_current)
+    log_transaction = {
+      transaction_date: transactions[0][7],
+      import_date: Time.now
+    }
+    if is_valid_transaction?(log_transaction[:transaction_date])
+      log = save_log_transaction(log_transaction)
       transactions.each do |row|
-        if is_valid_transaction_date?(row[7], date_current)
+        if is_valid_transaction_date?(row[7], log_transaction[:transaction_date])
           data.unshift({
             origin_bank: row[0],
             origin_account: row[1],
@@ -41,9 +50,11 @@ class ImportFileService
             target_bank: row[4],
             target_branch: row[5],
             value_transaction: row[6],
-            datetime_transaction: row[7]
+            datetime_transaction: row[7],
+            log_transactions_id: log.id
           })
         else
+          delete_log_transaction(log.id)
           return []
         end
       end
@@ -61,6 +72,17 @@ class ImportFileService
   end
 
   private
+  # Hash expect => {transaction_date: date, import_date: date}
+  def delete_log_transaction(id)
+    LogTransaction.delete(id)
+  end
+
+  # Hash expect => {transaction_date: date, import_date: date}
+  def save_log_transaction(log)
+    log[:transaction_date] = date_format(log[:transaction_date])
+    LogTransaction.create!(log)
+  end
+
   def exist_date?(file)
     begin
       Date.parse(file[0][7])

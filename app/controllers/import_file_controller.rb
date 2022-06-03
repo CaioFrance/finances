@@ -3,6 +3,7 @@ class ImportFileController < ApplicationController
   before_action :init_service
 
   def index
+    @log_transactions = @@import_service.get_log_transactions
   end
 
   def import
